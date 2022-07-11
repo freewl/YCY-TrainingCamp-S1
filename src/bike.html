@@ -1,0 +1,299 @@
+<html>
+<head>
+    <title>猿创营</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,user-scalable=no">
+    <style type="text/css">
+        * {
+            padding: 0;
+            margin: 0
+        }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        div {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="brakebanner"></div>
+</body>
+<style>
+    #brakebanner {
+        width: 1000px;
+        margin: 0 auto;
+        background-color: #f8f8f8;
+    }
+</style>
+
+<!--
+* pixi.js - v6.4.2
+* Compiled Thu, 02 Jun 2022 15:39:26 UTC
+*
+* pixi.js is licensed under the MIT License.
+* http://www.opensource.org/licenses/mit-license
+-->
+<script src="https://pixijs.download/release/pixi.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
+<script src="./js/brakebanner.js"></script>
+<script>
+    /**
+     * 1.>创建Pixi应用和stage(舞台: 特殊Pixi容器对象, 该舞台对象将根容器来保存您希望Pixi显示的东西。)
+     *
+     *  如果您需要修改Pixi的默认配置，请参阅Pixi.application文档。
+     *
+     *  要更改画布的大小，请使用renderer的resize方法，并提供任何新的width和height值。
+     *  但是，为了确保画布的大小调整到与分辨率匹配，请将autoResize设置为true。
+     *
+     *  本例使用固定高度 宽度. (可以参考官方文档实现自适应控制)
+     *
+     *  详细介绍: 请参阅官方文档:  https://pixijs.io
+     *
+     * @type {PIXI.Application}
+     */
+    let app = new PIXI.Application({
+        width: 1000,
+        height: 1000
+    })
+
+    /**
+     * 设置应用背景色(格式: 0x标识的16进制颜色值, 区别css使用#开头的颜色值)
+     * @type {number}
+     */
+    app.renderer.backgroundColor = 0xf2f2f2
+
+    /**
+     * 将Pixi自动为您创建的画布添加到HTML文档中
+     */
+    document.getElementById("brakebanner").appendChild(app.view)
+
+
+    /**
+     *  使用Pixi的Sprite类来创建精灵
+     *
+     *  创建方法有三种：
+     *     通过单个图像文件。(本文使用该种方法创建)
+     *     通过雪碧图。
+     *     通过纹理贴图。
+     *
+     *  sprite（精灵）是一种的特殊图像对象。您可以控制它们的位置、大小和其他属性。
+     *  学习制作和控制sprite（精灵）非常重要。
+     */
+    //按钮图片精灵
+    let spriteBtn = PIXI.Sprite.from('./images/btn.png');
+    //圆圈精灵
+    let spriteBtnCircle = PIXI.Sprite.from('./images/btn_circle.png');
+    //自行车精灵
+    let spriteBrakeBike = PIXI.Sprite.from('./images/brake_bike.png');
+    //控制杆精灵
+    let spriteBrakeHandlerbar = PIXI.Sprite.from('./images/brake_handlerbar.png');
+    //刹车把精灵
+    let spriteBrakeLever = PIXI.Sprite.from('./images/brake_lever.png');
+
+    //由于图片太大, 这里进行了缩放
+    spriteBtn.scale.x               =   spriteBtn.scale.y               = 0.5;
+    spriteBtnCircle.scale.x         =   spriteBtnCircle.scale.y         = 0.5;
+    spriteBrakeBike.scale.x         =  spriteBrakeBike.scale.y          = 0.2;
+    spriteBrakeHandlerbar.scale.x   =  spriteBrakeHandlerbar.scale.y    = 0.2;
+    spriteBrakeLever.scale.x        =   spriteBrakeLever.scale.y        = 0.2;
+
+    //调整刹车把的位置, (这里设置了固定位置)
+    spriteBrakeLever.x = 170;
+    spriteBrakeLever.y = 190;
+
+    /**
+     * 自行车容器 - 将车, 控制杆, 刹车把放在该容器
+     * @type {PIXI.Container}
+     */
+    let bikeContainer = new PIXI.Container();
+    bikeContainer.addChild(spriteBrakeBike);
+    bikeContainer.addChild(spriteBrakeLever);
+    bikeContainer.addChild(spriteBrakeHandlerbar);
+
+    //设置该容器的位置
+    bikeContainer.x = bikeContainer.y =   300;
+
+
+    /**
+     * 按钮容器 - 将按钮, 圆圈放在该容器
+     * @type {PIXI.Container}
+     */
+    const btnContainer = new PIXI.Container();
+    btnContainer.addChild(spriteBtn);
+    btnContainer.addChild(spriteBtnCircle);
+
+    //设置该容器位置
+    btnContainer.x = -50 + app.screen.width / 2;
+    btnContainer.y = -120 + app.screen.width / 2;
+
+    //设置按钮位置
+    spriteBtn.x = 9 ;
+    spriteBtn.y = 9 ;
+
+    //设置圆圈位置
+    spriteBtnCircle.x = 0;
+    spriteBtnCircle.y = 0;
+
+    //创建一个红点
+    let circleRed = new PIXI.Graphics();
+    circleRed.beginFill(0xFF0000);
+    circleRed.drawCircle(0, 0, 4);
+    circleRed.endFill();
+    circleRed.x = 150;
+    circleRed.y = 0;
+
+    //创建一个绿点
+    let circleGreen = new PIXI.Graphics();
+    circleGreen.beginFill(0x008000);
+    circleGreen.drawCircle(0, 0, 4);
+    circleGreen.endFill();
+    circleGreen.x = 250;
+    circleGreen.y = 0;
+
+    //创建一个橘色点
+    let circleOrange = new PIXI.Graphics();
+    circleOrange.beginFill(0xFFA500);
+    circleOrange.drawCircle(0, 0, 4);
+    circleOrange.endFill();
+    circleOrange.x = 350;
+    circleOrange.y = 0;
+
+
+    /**
+     * 绘制一个矩形图形作为路
+     * 作为路容器 - 将创建的三个点(用来实现运动路线效果)放在该容器
+     * @type {PIXI.Container}
+     */
+    let rectangleRoad = new PIXI.Graphics();
+    rectangleRoad.lineStyle(4, 0x008000, 1);
+    rectangleRoad.beginFill(0xcccccc);
+    rectangleRoad.drawRect(0, 0, 500, 2000);
+    rectangleRoad.endFill();
+
+    //将路移到中心
+    rectangleRoad.x = app.screen.width / 2;
+    rectangleRoad.y = app.screen.height / 2;
+
+    //设置路的旋转中心
+    rectangleRoad.pivot.x = rectangleRoad.width / 2;
+    rectangleRoad.pivot.y = rectangleRoad.height / 2;
+
+    //旋转路
+    rectangleRoad.rotation = (35 * Math.PI) / 180;
+
+    //加入三个点到路
+    rectangleRoad.addChild(circleRed);
+    rectangleRoad.addChild(circleGreen);
+    rectangleRoad.addChild(circleOrange);
+
+
+    //加入舞台
+    app.stage.addChild(rectangleRoad);        //公路
+    app.stage.addChild(bikeContainer);        //车容器
+    app.stage.addChild(btnContainer);        //按钮容器
+
+    /**
+     *  锚点设置刹车把精灵的原点。
+     *
+     *  默认值是（0,0），这意味着精灵的原点是左上角。
+     *  将锚点设置为（0.5,0.5）意味着精灵的原点在中间。
+     *  将锚点设置为（1,1）意味着精灵的原点将是右下角。(本例设置右下角作为旋转的原点)
+     * @type {number}
+     */
+    spriteBrakeLever.anchor.x = 1
+    spriteBrakeLever.anchor.y = 1
+
+    /**
+     * 为按钮精灵启用交互事件。
+     * 除非interactive设置为true，否则不会发出触摸、指针和鼠标事件。
+     * @type {boolean}
+     */
+    spriteBtn.interactive = true;
+    spriteBtn.buttonMode = true;
+
+    /**
+     * 为按钮绑定, 按下鼠标, 放开鼠标事件
+     */
+    spriteBtn.on('mousedown', onMusedown)
+    spriteBtn.on('mouseup', onMuseup)
+
+
+    /**
+     * 在按钮上按下鼠标时 - 事件处理逻辑
+     * @param e
+     */
+    function onMusedown(e) {
+        gsap.to(spriteBrakeLever, {
+            duration: 0.6,
+            rotation: (Math.PI / 180) * -30,
+        });
+
+        gsap.ticker.remove(gameLoop)
+
+        circleRed.scale.y = 1
+        circleRed.scale.x = 1
+        circleGreen.scale.y = 1
+        circleGreen.scale.x = 1
+        circleOrange.scale.y = 1
+        circleOrange.scale.x = 1
+    }
+
+    /**
+     * 在按钮上松开鼠标时 - 事件处理逻辑
+     * @param e
+     */
+    function onMuseup(e) {
+        gsap.to(spriteBrakeLever, {
+            duration: 0.6,
+            rotation: 0,
+        });
+
+        speed = 0;
+        gsap.ticker.add(gameLoop)
+    }
+
+    //运行速度初始值
+    let speed = 0.0;
+
+
+    /**
+     * 运动效果处理函数
+     */
+    function gameLoop(){
+        speed += 0.5;
+        speed = Math.min(speed, 80);
+
+        if(speed == 80) {
+            circleRed.scale.y = 10
+            circleRed.scale.x = 0.5
+            circleGreen.scale.y = 10
+            circleGreen.scale.x = 0.5
+            circleOrange.scale.y = 10
+            circleOrange.scale.x = 0.5
+        }
+
+        console.log("es=", speed)
+
+        if(circleRed)  circleRed.y  += speed
+        if(circleGreen)  circleGreen.y  += speed
+        if(circleOrange)  circleOrange.y  += speed
+
+
+        if(circleRed.y > 2000 ) {
+            circleRed.y  = 0
+            circleGreen.y  = 0
+            circleOrange.y  = 0
+        }
+    }
+
+    /**
+     * 初始运行, 运动效果
+     */
+    gsap.ticker.add(gameLoop)
+</script>
+</html>
